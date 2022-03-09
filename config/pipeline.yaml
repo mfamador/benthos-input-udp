@@ -1,0 +1,20 @@
+http:
+  address: ${HTTP_ADDRESS:0.0.0.0:4195}
+
+input:
+  udp:
+    address: ${UDP_SERVER_ADDRESS:127.0.0.1}:${UDP_SERVER_PORT:9042}
+    max_buffer_size: ${MAX_BUFFER_SIZE:1024}
+    max_in_flight: ${MAX_IN_FLIGHT:1}
+
+pipeline:
+  processors:
+  - log:
+      level: INFO
+      message: "udp packet"
+      fields:
+        payload: '${! content() }'
+        meta: '${! meta() }'
+
+output:
+  stdout: {}
