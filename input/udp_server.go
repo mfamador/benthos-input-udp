@@ -7,7 +7,6 @@ import (
 	"github.com/Jeffail/benthos/v3/public/service"
 	"net"
 	"strconv"
-	"sync"
 	"sync/atomic"
 )
 
@@ -29,9 +28,9 @@ type udpInput struct {
 	done        chan struct{}
 	count       uint64
 	conf        UDPServerConfig
-	conn        *net.UDPConn
-	connLock    sync.RWMutex
-	logger      *service.Logger
+	// conn        *net.UDPConn
+	conn   net.PacketConn
+	logger *service.Logger
 }
 
 func newUDPInput(conf *service.ParsedConfig, mgr *service.Resources) (service.Input, error) {
@@ -48,8 +47,7 @@ func newUDPInput(conf *service.ParsedConfig, mgr *service.Resources) (service.In
 		return nil, fmt.Errorf("error retrieving %s: %v", maxInFlightParam, err)
 	}
 
-	a, _ := net.ResolveUDPAddr("udp", address)
-	conn, err := net.ListenUDP("udp", a)
+	conn, err := net.ListenPacket("udp", address)
 	if err != nil {
 		return nil, err
 	}
